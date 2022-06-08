@@ -10,7 +10,7 @@ from model import BertSum
 
 class MatchSumServer:
     def __init__(self, bertsum_path, matchsum_path, gpu_used='0', reveal_top_n=3, bertsum_select_number=7,
-                 batch_size=10):
+                 batch_size=2):
         # Model Initialization
         os.environ["CUDA_VISIBLE_DEVICES"] = gpu_used
         self.reveal_top_n = reveal_top_n
@@ -18,7 +18,6 @@ class MatchSumServer:
         self.bertsum_select_number = bertsum_select_number
 
         self.bert_tokenizer = transformers.BertTokenizer.from_pretrained('bert-base-uncased')
-        self.roberta_tokenizer = transformers.RobertaTokenizer.from_pretrained('roberta-base')
 
         self.bert_sum_model = BertSum('bert-base-uncased')
         checkpoint = torch.load(bertsum_path)
@@ -65,10 +64,10 @@ class MatchSumServer:
         return selected_sentence_id
 
     def summarize_matchsum(self, text, candidate):
-        total_text_tokenized = self.roberta_tokenizer.encode_plus(
+        total_text_tokenized = self.bert_tokenizer.encode_plus(
             ' '.join([_[0:-1] for _ in text]), max_length=512, pad_to_max_length=True, return_tensors='pt')
         total_text_input_ids = total_text_tokenized['input_ids']
-        candidate_tokenized = self.roberta_tokenizer.batch_encode_plus(
+        candidate_tokenized = self.bert_tokenizer.batch_encode_plus(
             candidate, max_length=512, pad_to_max_length=True, return_tensors='pt')
         candidate_input_ids = candidate_tokenized['input_ids']
 
@@ -90,12 +89,14 @@ class MatchSumServer:
                 time.sleep(1)
                 continue
             for filename in os.listdir(self.request_path):
-                if filename[-4:] == 'json': break
+                if os.path.isfile(os.path.join(self.request_path, filename)): break
 
             ######################################
             # Ignore Too Short Request
-            request_data = json.load(open(self.request_path + filename, 'r'))
-            raw_data = request_data['Text']
+            with open(os.path.join(self.request_path, filename), 'r') as file:
+                raw_data = file.readlines()
+                raw_data = [_.replace('\n', '').lower() for _ in raw_data]
+
             if len(raw_data) < 5:
                 total_result = []
                 total_result.append(
@@ -121,7 +122,7 @@ class MatchSumServer:
             #######################################
             matchsum_score = self.summarize_matchsum(text=raw_data, candidate=candidate_sentence)
 
-            packaged_result = {'Time': request_data['Time'], 'BertSumSelect': [int(_) for _ in bertsum_selected],
+            packaged_result = {'BertSumSelect': [int(_) for _ in bertsum_selected],
                                'Scores': [float(_) for _ in matchsum_score]}
 
             for top_n_index in range(self.reveal_top_n):
@@ -135,7 +136,6 @@ class MatchSumServer:
 
 
 if __name__ == '__main__':
-    server = MatchSumServer(
-        bertsum_path='MatchSum_cnndm_model/BertSum-Parameter.pkl',
-        matchsum_path='MatchSum_cnndm_model/MatchSum_cnndm_roberta.ckpt')
+    server = MatchSumServer(bertsum_path='BertSum-Parameter.pkl', matchsum_path='MatchSum_cnndm_bert.ckpt')
+    print('Start Waiting for Document:')
     server.summarize_loop()

@@ -15,9 +15,9 @@ def load_jsonl(data_path):
     return data
 
 
-gpus = "1"
+gpus = "0"
 batch_size = 8
-learning_rate = 1E-4
+learning_rate = 1E-5
 epoch_number = 10
 save_path = 'E:/ProjectData/BertSum-Result-All-WeightChange/'
 encoder_name = 'bert-base-uncased'
