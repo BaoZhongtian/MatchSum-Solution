@@ -1,4 +1,4 @@
-# MatchSum-Study
+# MatchSum-Solution
  This is the study case of MatchSum Model. And hope it could help more researchers.
 
 This code is based on the MatchSum Code (https://github.com/maszhongming/MatchSum)
@@ -69,3 +69,6 @@ BertSumSelect: BertSum模型处理之后，所挑选的Sentence ID。
 Scores：MatchSum模型对不同组合评估出的分数。
 
 Top-N：MatchSum给出的Top-N个抽取式摘要结果。
+
+#Performance
+Waiting for Program Completed
