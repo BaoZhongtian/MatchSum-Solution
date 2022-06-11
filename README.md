@@ -70,7 +70,10 @@ Scores：MatchSum模型对不同组合评估出的分数。
 
 Top-N：MatchSum给出的Top-N个抽取式摘要结果。
 
+
 #Performance
+
+
 | Model | Rouge-1 | Rouge-2 | Rouge-L |
 | :------ | :------: | :------: | :------: |
 | BertSum+MatchSum (BERT-base) | 42.1938 | 19.661 | 27.50 |
