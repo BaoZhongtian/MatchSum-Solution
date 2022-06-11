@@ -74,7 +74,7 @@ Top-N：MatchSum给出的Top-N个抽取式摘要结果。
 
 | Model | Rouge-1 | Rouge-2 | Rouge-L |
 | :------ | :------: | :------: | :------: |
-| BertSum+MatchSum (BERT-base) | 42.1938 | 19.661 | 27.50 |
+| BertSum+MatchSum (BERT-base) | 42.1938 | 19.6615 | 27.5057 |
 
 
 The reason of BertSum+MatchSum(BERT-base) performance lower than (https://github.com/maszhongming/MatchSum) is BertSum model changes.
