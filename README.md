@@ -71,4 +71,16 @@ Scores：MatchSum模型对不同组合评估出的分数。
 Top-N：MatchSum给出的Top-N个抽取式摘要结果。
 
 #Performance
-Waiting for Program Completed
+| Model | Rouge-1 | Rouge-2 | Rouge-L |
+| :------ | :------: | :------: | :------: |
+| BertSum+MatchSum (BERT-base) | 42.1938 | 19.661 | 27.50 |
+
+
+The reason of BertSum+MatchSum(BERT-base) performance lower than (https://github.com/maszhongming/MatchSum) is BertSum model changes.
+
+In the Evaluate Part, I use BertSum model trained by only CNN/DM dataset and the program is based on Transformers Repository rather than existed model.
+
+对于BertSum+MatchSum(BERT-base)与(https://github.com/maszhongming/MatchSum)
+相比性能更低的原因，经过分析为BertSum部分进行了调整。
+
+在性能指标评估部分，本项目只使用CNN/DM的数据对BertSum进行了训练，并直接使用Transformers库进行重新编写，而非使用现有公开的模型。

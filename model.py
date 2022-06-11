@@ -62,7 +62,11 @@ class BertSum(torch.nn.Module):
     def __init__(self, model_name):
         assert model_name in ['bert-base-uncased', 'bert-large-uncased']
         super(BertSum, self).__init__()
-        self.encoder = BertModel.from_pretrained(model_name)
+        # self.encoder = BertModel.from_pretrained(model_name)
+        # Due to the Network Error
+        if model_name == 'bert-base-uncased':
+            self.encoder = BertModel.from_pretrained('C:/PythonProject/bert-base-uncased')
+
         if model_name == 'bert-base-uncased':
             self.predict_layer = torch.nn.Linear(in_features=768, out_features=2)
         if model_name == 'bert-large-uncased':
@@ -81,7 +85,8 @@ class BertSum(torch.nn.Module):
         start_word_result = []
         for indexX in range(len(text_position)):
             for indexY in range(len(text_position[indexX])):
-                start_word_result.append(out[indexX][text_position[indexX][indexY]].unsqueeze(0))
+                if text_position[indexX][indexY] < len(out[indexX]):
+                    start_word_result.append(out[indexX][text_position[indexX][indexY]].unsqueeze(0))
         start_word_result = torch.cat(start_word_result, dim=0)
 
         predict = self.predict_layer(start_word_result)

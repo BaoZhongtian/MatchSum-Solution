@@ -73,7 +73,7 @@ class MatchSumServer:
 
         total_text_input_ids = total_text_input_ids.cuda()
         total_score = []
-        for batch_index in tqdm.trange(0, candidate_input_ids.size()[0], self.batch_size):
+        for batch_index in tqdm.trange(0, candidate_input_ids.size()[0] - 1, self.batch_size):
             score = \
                 self.match_sum_model(total_text_input_ids,
                                      candidate_input_ids[batch_index:batch_index + self.batch_size].unsqueeze(0).cuda(),
@@ -93,9 +93,12 @@ class MatchSumServer:
 
             ######################################
             # Ignore Too Short Request
-            with open(os.path.join(self.request_path, filename), 'r') as file:
-                raw_data = file.readlines()
-                raw_data = [_.replace('\n', '').lower() for _ in raw_data]
+            try:
+                with open(os.path.join(self.request_path, filename), 'r', encoding='UTF-8') as file:
+                    raw_data = file.readlines()
+                    raw_data = [_.replace('\n', '').lower() for _ in raw_data]
+            except:
+                continue
 
             if len(raw_data) < 5:
                 total_result = []
@@ -103,6 +106,11 @@ class MatchSumServer:
                     {'Text': "The Text is TOO SHORT or NOT divided by line, please check the input.", 'Score': -9999})
                 json.dump(total_result, open(self.result_path + filename, 'w'))
                 os.remove(self.request_path + filename)
+                continue
+
+            try:
+                os.remove(self.request_path + filename)
+            except:
                 continue
 
             ######################################
@@ -131,11 +139,11 @@ class MatchSumServer:
                 matchsum_score[int(top_position)] = -9999
 
             json.dump(packaged_result, open(self.result_path + filename, 'w'))
-            os.remove(self.request_path + filename)
             time.sleep(1)
 
 
 if __name__ == '__main__':
-    server = MatchSumServer(bertsum_path='BertSum-Parameter.pkl', matchsum_path='MatchSum_cnndm_bert.ckpt')
+    server = MatchSumServer(gpu_used='2', bertsum_path='BertSum-Parameter.pkl',
+                            matchsum_path='MatchSum_cnndm_bert.ckpt', batch_size=10)
     print('Start Waiting for Document:')
     server.summarize_loop()
